@@ -79,4 +79,3 @@ for video_path in sorted(VIDEOS_DIR.glob("*.mp4")):
     cap.release()
 
 cv2.destroyAllWindows()
-print("\nГотово. Аннотации в data.csv")
