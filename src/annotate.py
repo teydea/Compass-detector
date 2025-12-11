@@ -58,18 +58,29 @@ for video_path in sorted(VIDEOS_DIR.glob("*.mp4")):
         x2 = max(center[0], tip[0])
         y2 = max(center[1], tip[1])
 
-        dx = tip[0] - center[0]
-        dy = tip[1] - center[1]
-        angle_deg = np.degrees(np.arctan2(-dy, dx)) % 360
-
-        if 45 <= angle_deg < 135:
-            label = "N"
-        elif 135 <= angle_deg < 225:
-            label = "W"
-        elif 225 <= angle_deg < 315:
-            label = "S"
-        else:
-            label = "E"
+        # ЖДЕМ ВВОДА МЕТКИ ОТ ЮЗЕРА
+        print("Введи направление (N/S/W/E): ", end='')
+        while True:
+            key = cv2.waitKey(0) & 0xFF
+            if key == ord('n') or key == ord('N'):
+                label = "N"
+                break
+            elif key == ord('s') or key == ord('S'):
+                label = "S"
+                break
+            elif key == ord('w') or key == ord('W'):
+                label = "W"
+                break
+            elif key == ord('e') or key == ord('E'):
+                label = "E"
+                break
+            elif key == ord('q'):
+                cap.release()
+                cv2.destroyAllWindows()
+                exit()
+            else:
+                print("Неверный ввод. Введи N/S/W/E: ", end='')
+        print(f" -> {label}")
 
         filename = IMG_DIR / f"{video_path.stem}_{frame_id:05d}.jpg"
         cv2.imwrite(str(filename), frame)
