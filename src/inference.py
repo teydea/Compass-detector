@@ -39,7 +39,7 @@ while True:
         label = names[cls_id]
         break
 
-    text = f"{names[label]} ({conf:.2f})"
+    text = f"{label} ({conf:.2f})"
     
     text_size = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 1.2, 2)[0]
     text_x = frame.shape[1] - text_size[0] - 20
