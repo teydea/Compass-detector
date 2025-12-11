@@ -21,6 +21,11 @@ def mouse_callback(event, x, y, flags, param):
         cv2.circle(param, (x, y), 5, (0, 255, 0), -1)
         cv2.imshow("Annotate: center -> tip", param)
 
+def make_callback(frame_ref):
+    def callback(event, x, y, flags, param):
+        mouse_callback(event, x, y, flags, frame_ref)
+    return callback
+
 for video_path in sorted(VIDEOS_DIR.glob("*.mp4")):
     print(f"Обрабатываю: {video_path.name}")
     cap = cv2.VideoCapture(str(video_path))
@@ -36,7 +41,7 @@ for video_path in sorted(VIDEOS_DIR.glob("*.mp4")):
 
         display_frame = frame.copy()
         cv2.imshow("Annotate: center -> tip", display_frame)
-        cv2.setMouseCallback("Annotate: center -> tip", lambda e, x, y, f, p: mouse_callback(e, x, y, f, display_frame))
+        cv2.setMouseCallback("Annotate: center -> tip", make_callback(display_frame))
 
         while len(clicks) < 2:
             if cv2.waitKey(50) & 0xFF == ord('q'):
