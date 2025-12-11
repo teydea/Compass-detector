@@ -6,6 +6,9 @@ import torch
 import cv2
 import random
 from pathlib import Path
+import shutil
+
+random.seed(42)
 
 df = []
 with open("../data.csv", newline="") as f:
@@ -32,6 +35,10 @@ for split_name, data in [("train", train_df), ("val", val_df)]:
         os.system(f"cp {img_src} {img_dst}")
         
         img = cv2.imread(str(img_src))
+
+        if (img is None):
+            continue
+
         h, w = img.shape[:2]
         
         x1 = int(row["x1"])
@@ -75,8 +82,13 @@ model.train(
     augment=True
 )
 
-os.makedirs("../models", exist_ok=True)
-os.system("cp runs/detect/compass/weights/best.pt ../models/best.pt")
 
-os.system("rm -rf yolo_data runs")
-print("Модель сохранена в ../models/best.pt")
+weights_src = Path("runs/detect/compass/weights/best.pt")
+weights_dst = Path("../models/best.pt")
+
+weights_dst.parent.mkdir(parents=True, exist_ok=True)
+shutil.copy(weights_src, weights_dst)
+print("Модель сохранена:", weights_dst)
+
+shutil.rmtree("yolo_data", ignore_errors=True)
+shutil.rmtree("runs", ignore_errors=True)
