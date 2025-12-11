@@ -1,8 +1,12 @@
-path: data
-train: images
-val: images
+path: ../data
+train: train/images
+val: val/images
+test: test/images
+
 names:
   0: N
   1: S
   2: W
   3: E
+
+nc: 4
