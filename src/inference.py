@@ -28,14 +28,16 @@ while True:
     p1 = p2 = None
 
     for r in results:
-        for box in r.boxes:
-            x1, y1, x2, y2 = map(int, box.xyxy[0])
-            cls_id = int(box.cls[0])
-            conf = float(box.conf[0])
-            label = names[cls_id]
-            p1 = (x1, y1)
-            p2 = (x2, y2)
-            break
+        if len(r.boxes) == 0:
+            continue
+        best_box = max(r.boxes, key=lambda b: float(b.conf))
+        x1, y1, x2, y2 = map(int, best_box.xyxy[0])
+        cls_id = int(best_box.cls[0])
+        conf = float(best_box.conf[0])
+        label = names[cls_id]
+        p1 = (x1, y1)
+        p2 = (x2, y2)
+        break
 
     if p1 and p2:
         cv2.line(frame, p1, p2, (0, 255, 0), 3)
