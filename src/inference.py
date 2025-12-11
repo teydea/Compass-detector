@@ -1,12 +1,16 @@
 import cv2
 import argparse
 import torch
+import os
 from ultralytics import YOLO
-import numpy as np
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--video", required=True)
 args = parser.parse_args()
+
+if not os.path.exists("../models/best.pt"):
+    print("Ошибка: Модель не найдена")
+    exit(1)
 
 model = YOLO("../models/best.pt")
 names = ["N", "S", "W", "E"]
@@ -25,47 +29,23 @@ while True:
 
     results = model(frame, device=device, conf=0.5, verbose=False)
     label, conf = "??", 0.0
-    p1 = p2 = None
 
     for r in results:
         if len(r.boxes) == 0:
             continue
         best_box = max(r.boxes, key=lambda b: float(b.conf))
-        x1, y1, x2, y2 = map(int, best_box.xyxy[0])
         cls_id = int(best_box.cls[0])
         conf = float(best_box.conf[0])
         label = names[cls_id]
-        p1 = (x1, y1)
-        p2 = (x2, y2)
         break
 
-    if p1 and p2:
-        cv2.line(frame, p1, p2, (0, 255, 0), 3)
-        
-        dx = p2[0] - p1[0]
-        dy = p2[1] - p1[1]
-        length = (dx**2 + dy**2)**0.5
-        
-        if length > 0:
-            ux, uy = dx / length, dy / length
-            px, py = -uy, ux
-            arrow_len = 15
-            
-            tip = p2
-            left_wing = (
-                int(tip[0] - arrow_len * (ux - px)),
-                int(tip[1] - arrow_len * (uy - py))
-            )
-            right_wing = (
-                int(tip[0] - arrow_len * (ux + px)),
-                int(tip[1] - arrow_len * (uy + py))
-            )
-            
-            cv2.line(frame, tip, left_wing, (0, 255, 0), 3)
-            cv2.line(frame, tip, right_wing, (0, 255, 0), 3)
-
-    text = f"{label} ({conf:.2f})"
-    cv2.putText(frame, text, (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 0), 2)
+    text = f"{names[label]} ({conf:.2f})"
+    
+    text_size = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 1.2, 2)[0]
+    text_x = frame.shape[1] - text_size[0] - 20
+    text_y = text_size[1] + 20
+    
+    cv2.putText(frame, text, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 0, 255), 2)
     
     cv2.imshow("Compass Direction", frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
