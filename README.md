@@ -33,7 +33,7 @@ python train.py
 cd src
 python inference.py --video ../dataset/videos/ваше_видео.mp4
 ```
-На видео появится bounding box и направление стрелки.
+На видео появится направление стрелки и confidence.
 
 ## Примечания
 - Все временные файлы (```yolo_data/```, ```runs/```) автоматически
